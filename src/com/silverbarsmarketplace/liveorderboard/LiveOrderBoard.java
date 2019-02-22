@@ -1,15 +1,19 @@
 package com.silverbarsmarketplace.liveorderboard;
 
-import java.util.Scanner;
+import com.silverbarsmarketplace.liveorderboard.orders.Buy;
+import com.silverbarsmarketplace.liveorderboard.orders.Order;
+import com.silverbarsmarketplace.liveorderboard.orders.Sell;
+import com.silverbarsmarketplace.liveorderboard.utils.Utils;
+
+import java.util.*;
 
 /**
  * Created by parisfreire on 21/02/2019.
  */
 public class LiveOrderBoard {
-
-    //Register order
-    //Cancel order
-    //Summary information orders
+    
+    private static List<Order> buysList = new ArrayList<>();
+    private static List<Order> sellsList = new ArrayList<>();
 
     public static void start(){
         System.out.println("####################");
@@ -47,31 +51,110 @@ public class LiveOrderBoard {
     private static void displayOptionSelected(short option){
         switch(option) {
             case 1 :
-                breakLinesInConsole();
+                Utils.breakLinesInConsole();
+
+                registerOrder();
+
                 // register order
                 break;
 
             case 2 :
-                breakLinesInConsole();
+                Utils.breakLinesInConsole();
                 // cancel order
-                break; // optional
+                break;
 
             case 3 :
-                breakLinesInConsole();
-                break; // optional
+                Utils.breakLinesInConsole();
+
+                ordersSummary();
+                break;
 
             case 4 :
                 System.out.println("Quitting application...");
-                break; // optional
+                break;
 
             default :
                 System.out.println("Wrong option. Please try again.");
-                breakLinesInConsole();
+                Utils.breakLinesInConsole();
         }
     }
 
-    private static void breakLinesInConsole(){
-        for (int i = 0; i < 3; ++i) System.out.println("-------------------7");
+    private static Order registerOrder(){
+
+        Order order = null;
+        Scanner sc2 = new Scanner(System.in);
+
+        System.out.println("> Is it going to be a BUY or a SELL?: (B/S)");
+
+        char orderType = sc2.next().charAt(0);
+        int userId, pricePerKg;
+        double orderQuantity;
+
+
+        if(orderType == 'B' || orderType == 'b'){
+
+            System.out.println("> Enter your user id: ");
+            userId = sc2.nextInt();
+            System.out.println("> Enter your order quantity: ");
+            orderQuantity = sc2.nextDouble();
+            System.out.println("> Enter your price per Kg: ");
+            pricePerKg = sc2.nextInt();
+
+            Utils.breakLinesInConsole();
+
+            order = new Buy(userId, pricePerKg, orderQuantity);
+            updateBuysList(order);
+
+        }else if(orderType == 'S' || orderType == 's'){
+
+            System.out.println("> Enter your user id: ");
+            userId = sc2.nextInt();
+            System.out.println("> Enter your order quantity: ");
+            orderQuantity = sc2.nextDouble();
+            System.out.println("> Enter your price per Kg: ");
+            pricePerKg = sc2.nextInt();
+
+            order = new Sell(userId, pricePerKg, orderQuantity);
+            updateSellsList(order);
+
+        }else{
+            System.out.println("> Incorrect order. Please try again.");
+
+            registerOrder();
+        }
+
+        return order;
+    }
+
+    private static void updateBuysList(Order order){
+
+        buysList.add(order);
+
+        Comparator comparatorByPriceReversed = order.getComparatorByPriceReversed();
+        Collections.sort(buysList, comparatorByPriceReversed);
+    }
+
+    private static void updateSellsList(Order order){
+
+        sellsList.add(order);
+
+        Comparator comparatorByPrice = order.getComparatorByPrice();
+        Collections.sort(buysList, comparatorByPrice);
+    }
+
+
+    private static void ordersSummary(){
+        System.out.println("Summary information of live orders \n");
+
+        for (Order sell : sellsList) {
+            System.out.println("SELL: "+ sell.getOrderQuantity() + "kg for £"+ sell.getPricePerKg() + "[user" +sell.getUserId()+"]" );
+        }
+
+        for (Order buy : buysList) {
+            System.out.println("BUY: "+ buy.getOrderQuantity() + "kg for £"+ buy.getPricePerKg() + "[user" +buy.getUserId()+"]" );
+        }
+
+        Utils.breakLinesInConsole();
     }
 
 }
