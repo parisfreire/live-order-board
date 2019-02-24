@@ -15,9 +15,6 @@ public abstract class Order{
         public int getUserId() {
             return userId;
         }
-        public void setUserId(int userId) {
-            this.userId = userId;
-        }
         public double getOrderQuantity() {
             return orderQuantity;
         }
@@ -26,9 +23,6 @@ public abstract class Order{
         }
         public int getPricePerKg() {
             return pricePerKg;
-        }
-        public void setPricePerKg(int pricePerKg) {
-            this.pricePerKg = pricePerKg;
         }
 
 

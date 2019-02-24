@@ -19,7 +19,7 @@ public class LiveOrderBoard {
     public static void start(){
         System.out.println("####################");
         System.out.println("## LiveOrderBoard ##");
-        System.out.println("#################### ");
+        System.out.println("####################");
 
         Scanner sc = new Scanner(System.in);
         short option = 0;
@@ -35,11 +35,11 @@ public class LiveOrderBoard {
         System.out.println("1. Register order");
         System.out.println("2. Cancel order");
         System.out.println("3. Summary");
-        System.out.println("4. EXIT ");
+        System.out.println("4. EXIT");
 
         Utils.breakLinesInConsole();
 
-        System.out.println("> Enter your option and hit Enter: ");
+        System.out.println("> Enter your option and hit Enter:");
     }
 
     private static void displayOptionSelected(short option){
@@ -48,19 +48,29 @@ public class LiveOrderBoard {
                 registerOrder();
                 break;
             case 2 :
-                Utils.breakLinesInConsole();
+                cancelOrder();
                 break;
             case 3 :
-                Utils.breakLinesInConsole();
                 ordersSummary();
                 break;
             case 4 :
-                System.out.println("Quitting application...");
+                System.out.println("# Quitting application...");
                 break;
             default :
-                System.out.println("Wrong option. Please try again.");
+                System.out.println("# Wrong option. Please try again.");
                 Utils.breakLinesInConsole();
         }
+    }
+
+    private static void displaySellsAndBuys(){
+        for (Order sell : sellsList) {
+            System.out.println("SELL: "+ sell.getOrderQuantity() + "kg for £"+ sell.getPricePerKg());
+        }
+
+        for (Order buy : buysList) {
+            System.out.println("BUY: "+ buy.getOrderQuantity() + "kg for £"+ buy.getPricePerKg());
+        }
+        Utils.breakLinesInConsole();
     }
 
     private static void registerOrder(){
@@ -100,7 +110,7 @@ public class LiveOrderBoard {
 
             updateOrdersList(order, sellsList, orderType);
         }else{
-            System.out.println("> Incorrect order. Please try again.");
+            System.out.println("# Incorrect order. Please try again.");
             Utils.breakLinesInConsole();
 
             registerOrder();
@@ -121,7 +131,6 @@ public class LiveOrderBoard {
                     index = i;
                 }
             }
-
             if(containsSamePrice){
                 Order o = orderList.get(index);
                 o.setOrderQuantity(o.getOrderQuantity() + order.getOrderQuantity());
@@ -130,7 +139,6 @@ public class LiveOrderBoard {
             }else{
                 orderList.add(order);
             }
-
         }else{
             orderList.add(order);
         }
@@ -139,39 +147,75 @@ public class LiveOrderBoard {
             Comparator comparatorByPriceReversed = order.getComparatorByPriceReversed();
             Collections.sort(orderList, comparatorByPriceReversed);
 
-            System.out.print("You just added a BUY: ");
-
+            System.out.print("# You just added a BUY: ");
         }else{
-
-            System.out.print("You just added a SELL: ");
-
             Comparator comparatorByPrice = order.getComparatorByPrice();
-            Collections.sort(buysList, comparatorByPrice);
-        }
+            Collections.sort(orderList, comparatorByPrice);
 
+            System.out.print("# You just added a SELL: ");
+        }
         System.out.println(order.getOrderQuantity() + "kg for £"+ order.getPricePerKg() + " [user" +order.getUserId()+"]");
 
         Utils.breakLinesInConsole();
     }
 
-    private static void sumSameQuantityOrders(double quantity1, double quantity2, int index){
+    private static void cancelOrder(){
 
-        double total = quantity1 + quantity2;
+        displaySellsAndBuys();
 
+        Scanner sc3 = new Scanner(System.in);
+
+        System.out.println("> Which order type do you want to cancel? BUY or SELL?: (B/S)");
+
+        char orderType = Character.toUpperCase(sc3.next().charAt(0));
+        int pricePerKg;
+        double orderQuantity;
+
+        System.out.println("> Enter order quantity to cancel: ");
+        orderQuantity = sc3.nextDouble();
+        System.out.println("> Enter order price per Kg to cancel: ");
+        pricePerKg = sc3.nextInt();
+
+        if(orderType == 'B'){
+
+            cancelOrderInList(orderQuantity, pricePerKg, buysList);
+
+        }else if(orderType == 'S'){
+
+            cancelOrderInList(orderQuantity, pricePerKg, sellsList);
+
+        }else{
+            System.out.println("# Incorrect order. Please try again.");
+            Utils.breakLinesInConsole();
+
+            cancelOrder();
+        }
+        Utils.breakLinesInConsole();
+    }
+
+    private static void cancelOrderInList(double orderQuantity, int pricePerKg, List<Order> orderList){
+
+        if(orderList.size() != 0) {
+            for (int i = 0; i < orderList.size(); i++) {
+                Order o = orderList.get(i);
+
+                if (o.getOrderQuantity() == orderQuantity && o.getPricePerKg() == pricePerKg) {
+                    orderList.remove(o);
+
+                    System.out.print("# Order cancelled successfully: ");
+                    System.out.println(o.getOrderQuantity() + "kg for £" + o.getPricePerKg());
+                } else {
+                    System.out.print("# No matching orders.");
+                }
+            }
+        }else{
+            System.out.print("# There are not orders to cancel.");
+        }
     }
 
     private static void ordersSummary(){
-        System.out.println("Summary information of live orders");
-
-        for (Order sell : sellsList) {
-            System.out.println("SELL: "+ sell.getOrderQuantity() + "kg for £"+ sell.getPricePerKg());
-        }
-
-        for (Order buy : buysList) {
-            System.out.println("BUY: "+ buy.getOrderQuantity() + "kg for £"+ buy.getPricePerKg());
-        }
-
-        Utils.breakLinesInConsole();
+        System.out.println("# Summary information of live orders");
+        displaySellsAndBuys();
     }
 
 }
