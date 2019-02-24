@@ -84,36 +84,39 @@ public class LiveOrderBoard {
         int userId, pricePerKg;
         double orderQuantity;
 
-        if(orderType == 'B'){
+        switch(orderType) {
+            case 'B' :
+                System.out.println("> Enter your user id: ");
+                userId = sc2.nextInt();
+                System.out.println("> Enter your order quantity: ");
+                orderQuantity = sc2.nextDouble();
+                System.out.println("> Enter your price per Kg: ");
+                pricePerKg = sc2.nextInt();
 
-            System.out.println("> Enter your user id: ");
-            userId = sc2.nextInt();
-            System.out.println("> Enter your order quantity: ");
-            orderQuantity = sc2.nextDouble();
-            System.out.println("> Enter your price per Kg: ");
-            pricePerKg = sc2.nextInt();
+                order = new Buy(userId, pricePerKg, orderQuantity);
 
-            order = new Buy(userId, pricePerKg, orderQuantity);
+                updateOrdersList(order, buysList, orderType);
 
-            updateOrdersList(order, buysList, orderType);
+                break;
 
-        }else if(orderType == 'S'){
+            case 'S' :
+                System.out.println("> Enter your user id: ");
+                userId = sc2.nextInt();
+                System.out.println("> Enter your order quantity: ");
+                orderQuantity = sc2.nextDouble();
+                System.out.println("> Enter your price per Kg: ");
+                pricePerKg = sc2.nextInt();
 
-            System.out.println("> Enter your user id: ");
-            userId = sc2.nextInt();
-            System.out.println("> Enter your order quantity: ");
-            orderQuantity = sc2.nextDouble();
-            System.out.println("> Enter your price per Kg: ");
-            pricePerKg = sc2.nextInt();
+                order = new Sell(userId, pricePerKg, orderQuantity);
 
-            order = new Sell(userId, pricePerKg, orderQuantity);
+                updateOrdersList(order, sellsList, orderType);
 
-            updateOrdersList(order, sellsList, orderType);
-        }else{
-            System.out.println("# Incorrect order. Please try again.");
-            Utils.breakLinesInConsole();
+                break;
+            default :
+                System.out.println("# Incorrect order. Please try again.");
+                Utils.breakLinesInConsole();
 
-            registerOrder();
+                registerOrder();
         }
     }
 
@@ -143,16 +146,23 @@ public class LiveOrderBoard {
             orderList.add(order);
         }
 
-        if(orderType == 'B'){
-            Comparator comparatorByPriceReversed = order.getComparatorByPriceReversed();
-            Collections.sort(orderList, comparatorByPriceReversed);
+        switch (orderType){
+            case 'B':
+                Comparator comparatorByPriceReversed = order.getComparatorByPriceReversed();
+                Collections.sort(orderList, comparatorByPriceReversed);
 
-            System.out.print("# You just added a BUY: ");
-        }else{
-            Comparator comparatorByPrice = order.getComparatorByPrice();
-            Collections.sort(orderList, comparatorByPrice);
+                System.out.print("# You just added a BUY: ");
 
-            System.out.print("# You just added a SELL: ");
+                break;
+            case 'S':
+
+                Comparator comparatorByPrice = order.getComparatorByPrice();
+                Collections.sort(orderList, comparatorByPrice);
+
+                System.out.print("# You just added a SELL: ");
+
+                break;
+            default:
         }
         System.out.println(order.getOrderQuantity() + "kg for £"+ order.getPricePerKg() + " [user" +order.getUserId()+"]");
 
@@ -164,7 +174,6 @@ public class LiveOrderBoard {
         displaySellsAndBuys();
 
         Scanner sc3 = new Scanner(System.in);
-
         System.out.println("> Which order type do you want to cancel? BUY or SELL?: (B/S)");
 
         char orderType = Character.toUpperCase(sc3.next().charAt(0));
@@ -176,40 +185,49 @@ public class LiveOrderBoard {
         System.out.println("> Enter order price per Kg to cancel: ");
         pricePerKg = sc3.nextInt();
 
-        if(orderType == 'B'){
 
-            cancelOrderInList(orderQuantity, pricePerKg, buysList);
+        switch (orderType) {
+            case 'B':
+                cancelOrderInList(orderQuantity, pricePerKg, buysList);
+                break;
+            case 'S':
+                cancelOrderInList(orderQuantity, pricePerKg, sellsList);
+                break;
+            default:
+                System.out.println("# Incorrect order. Please try again.");
+                Utils.breakLinesInConsole();
 
-        }else if(orderType == 'S'){
-
-            cancelOrderInList(orderQuantity, pricePerKg, sellsList);
-
-        }else{
-            System.out.println("# Incorrect order. Please try again.");
-            Utils.breakLinesInConsole();
-
-            cancelOrder();
+                cancelOrder();
         }
         Utils.breakLinesInConsole();
     }
 
     private static void cancelOrderInList(double orderQuantity, int pricePerKg, List<Order> orderList){
+        boolean matchingOrder = false;
+        int index = 0;
 
         if(orderList.size() != 0) {
             for (int i = 0; i < orderList.size(); i++) {
                 Order o = orderList.get(i);
 
                 if (o.getOrderQuantity() == orderQuantity && o.getPricePerKg() == pricePerKg) {
-                    orderList.remove(o);
 
-                    System.out.print("# Order cancelled successfully: ");
-                    System.out.println(o.getOrderQuantity() + "kg for £" + o.getPricePerKg());
-                } else {
-                    System.out.print("# No matching orders.");
+                    matchingOrder = true;
+                    index = i;
                 }
             }
+
+            if(matchingOrder){
+                Order o = orderList.get(index);
+                orderList.remove(o);
+
+                System.out.print("# Order cancelled successfully: ");
+                System.out.println(o.getOrderQuantity() + "kg for £" + o.getPricePerKg());
+            }else{
+                System.out.println("# No matching order");
+            }
         }else{
-            System.out.print("# There are not orders to cancel.");
+            System.out.println("# There are not orders to cancel.");
         }
     }
 
